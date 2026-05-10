@@ -1,0 +1,14 @@
+services:
+  website:
+    container_name: website-dev
+    build:
+      context: ./next-app
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "8088:3000"
+    volumes:
+      - ./next-app:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development

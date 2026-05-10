@@ -1,0 +1,9 @@
+services:
+  website:
+    container_name: website
+    build: ./next-app
+    restart: unless-stopped
+    ports:
+      - "8088:3000"
+    environment:
+      - NODE_ENV=production
