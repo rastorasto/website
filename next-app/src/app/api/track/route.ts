@@ -12,10 +12,16 @@ export async function POST(request: Request) {
     body = {};
   }
 
+  // Check for Cloudflare's real client IP first, then fall back to x-forwarded-for
+  const cfConnectingIp = request.headers.get('cf-connecting-ip');
   const forwardedFor = request.headers.get('x-forwarded-for');
-  const ip = forwardedFor?.split(',')[0]?.trim() ?? 'unknown';
+  const ip = cfConnectingIp?.trim() ?? forwardedFor?.split(',')[0]?.trim() ?? 'unknown';
 
   let country = 'unknown';
+
+  let city = 'unknown';
+  let region = 'unknown';
+  let countryCode = 'unknown';
 
   if (ip !== 'unknown' && ip !== '127.0.0.1' && ip !== '::1') {
     try {
@@ -26,8 +32,16 @@ export async function POST(request: Request) {
       });
 
       if (response.ok) {
-        const data = (await response.json()) as { country_name?: string };
+        const data = (await response.json()) as {
+          country_name?: string;
+          city?: string;
+          region?: string;
+          country_code?: string;
+        };
         country = data.country_name ?? 'unknown';
+        city = data.city ?? 'unknown';
+        region = data.region ?? 'unknown';
+        countryCode = data.country_code ?? 'unknown';
       }
     } catch {
       country = 'unknown';
@@ -40,6 +54,9 @@ export async function POST(request: Request) {
     timestamp: body.timestamp ?? new Date().toISOString(),
     ip,
     country,
+    city,
+    region,
+    countryCode,
   };
 
   console.log('Tracked event:', entry);
@@ -51,7 +68,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: `Website event: ${entry.event}\nIP: ${entry.ip}\nCountry: ${entry.country}\nTime: ${entry.timestamp}`,
+        content: `Website event: ${entry.event}\nIP: ${entry.ip}\nLocation: ${entry.city}, ${entry.region}, ${entry.countryCode}\nCountry: ${entry.country}\nTime: ${entry.timestamp}`,
       }),
     });
   } catch {
