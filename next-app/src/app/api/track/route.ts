@@ -42,9 +42,12 @@ export async function POST(request: Request) {
         city = data.city ?? 'unknown';
         region = data.region ?? 'unknown';
         countryCode = data.country_code ?? 'unknown';
+        console.log('Geolocation data:', data);
+      } else {
+        console.log('Geolocation API response not OK:', response.status, response.statusText);
       }
-    } catch {
-      country = 'unknown';
+    } catch (error) {
+      console.error('Geolocation lookup error:', error);
     }
   }
 
