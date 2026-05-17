@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DISCORD_WEBHOOK_URL =
-  'https://discord.com/api/webhooks/REDACTED';
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 export async function POST(request: Request) {
   let body: { event?: string; url?: string; timestamp?: string } = {};
@@ -64,18 +63,20 @@ export async function POST(request: Request) {
 
   console.log('Tracked event:', entry);
 
-  try {
-    await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        content: `Website event: ${entry.event}\nIP: ${entry.ip}\nLocation: ${entry.city}, ${entry.region}, ${entry.countryCode}\nCountry: ${entry.country}\nTime: ${entry.timestamp}`,
-      }),
-    });
-  } catch {
-    console.error('Failed to send Discord webhook notification');
+  if (DISCORD_WEBHOOK_URL) {
+    try {
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `Website event: ${entry.event}\nIP: ${entry.ip}\nLocation: ${entry.city}, ${entry.region}, ${entry.countryCode}\nCountry: ${entry.country}\nTime: ${entry.timestamp}`,
+        }),
+      });
+    } catch {
+      console.error('Failed to send Discord webhook notification');
+    }
   }
 
   return NextResponse.json({ ok: true });

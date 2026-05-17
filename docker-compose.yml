@@ -7,3 +7,4 @@ services:
       - "8088:3000"
     environment:
       - NODE_ENV=production
+      - DISCORD_WEBHOOK_URL=<redacted>

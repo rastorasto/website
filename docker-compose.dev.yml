@@ -12,3 +12,4 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
