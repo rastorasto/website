@@ -21,17 +21,10 @@ jobs:
 
       - name: Build and restart containers
         run: |
-          # If a persistent website folder exists on the runner, update it first
-          if [ -d /home/meow/website ]; then
-            echo "Updating /home/meow/website from origin/main"
-            git -C /home/meow/website fetch origin main
-            git -C /home/meow/website reset --hard origin/main
-            cd /home/meow/website
-            docker compose -f docker-compose.yml up -d --build --remove-orphans
-          else
-            echo "No persistent folder found, using checked-out workspace"
-            docker compose -f docker-compose.yml up -d --build --remove-orphans
-          fi
+          # Use the checked-out repository workspace to build and run containers
+          echo "Using GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
+          cd "${GITHUB_WORKSPACE}"
+          docker compose -f docker-compose.yml up -d --build --remove-orphans
 
       - name: Notify Discord of deployment
         if: ${{ env.DISCORD_WEBHOOK_URL != '' }}

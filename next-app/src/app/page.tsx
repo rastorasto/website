@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-16">
-      <div className="text-4xl font-bold text-white">meow meow</div>
+      <div className="text-4xl font-bold text-white">meow meow :3</div>
 
       <div className="relative flex flex-col items-center">
         <div
