@@ -13,6 +13,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: [self-hosted, linux, x64]
+    environment: main
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
     steps:
