@@ -23,7 +23,7 @@ jobs:
         run: docker compose -f docker-compose.yml up -d --build --remove-orphans
 
       - name: Notify Discord of deployment
-        if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
         run: |
           curl -s -X POST -H 'Content-Type: application/json' \
-            -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${DISCORD_WEBHOOK_URL}"
