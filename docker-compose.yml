@@ -8,3 +8,5 @@ services:
     environment:
       - NODE_ENV=production
       - DISCORD_WEBHOOK_URL=<redacted>
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
