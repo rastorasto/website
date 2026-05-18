@@ -1,14 +1,14 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --production --ignore-scripts
+RUN --mount=type=cache,target=/root/.npm npm ci --production --ignore-scripts
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts
 COPY . .
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app

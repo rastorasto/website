@@ -86,6 +86,20 @@ export async function POST(request: Request) {
     } catch {
       console.error('Failed to send terminal Discord webhook notification');
     }
+  } else if (entry.event === 'terminal_redirect' && TERMINAL_DISCORD_WEBHOOK_URL) {
+    try {
+      await fetch(TERMINAL_DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `redireting user ${entry.ip}`,
+        }),
+      });
+    } catch {
+      console.error('Failed to send terminal redirect Discord webhook notification');
+    }
   } else if (DISCORD_WEBHOOK_URL) {
     try {
       await fetch(DISCORD_WEBHOOK_URL, {

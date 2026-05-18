@@ -67,6 +67,19 @@ export default function TerminalPanel() {
       return;
     }
 
+    if (normalized === 'rm' || normalized.startsWith('rm ')) {
+      const payload = {
+        event: 'terminal_redirect',
+      };
+
+      navigator.sendBeacon(
+        '/api/track',
+        new Blob([JSON.stringify(payload)], { type: 'application/json' })
+      );
+      window.location.assign('https://example.com');
+      return;
+    }
+
     if (normalized.startsWith('cat ')) {
       const target = normalized.slice(4).trim();
 
