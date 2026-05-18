@@ -25,11 +25,6 @@ jobs:
 
       - name: Notify Discord of deployment (verbose)
         run: |
-          if [ -z "${DISCORD_WEBHOOK_URL:-}" ]; then
-            echo "DISCORD_WEBHOOK_URL is not set — skipping notification"
-            exit 0
-          fi
-          echo "Sending Discord notification..."
           curl -vS --fail -X POST -H 'Content-Type: application/json' \
             -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${DISCORD_WEBHOOK_URL}" \
             && echo "Discord notified successfully"
