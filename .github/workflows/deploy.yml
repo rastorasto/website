@@ -20,16 +20,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and restart containers
-        run: |
-          # Use the checked-out repository workspace to build and run containers
-          echo "Using GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
-          cd "${GITHUB_WORKSPACE}"
-          docker compose -f docker-compose.yml up -d --build --remove-orphans
+        run: docker compose -f docker-compose.yml up -d --build --remove-orphans
 
       - name: Notify Discord of deployment
-        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+        if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
         run: |
-          echo "Notifying Discord..."
-          CONTENT="Deployed ${GITHUB_REPOSITORY}@${GITHUB_SHA} by ${GITHUB_ACTOR}"
-          curl -s -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"${CONTENT}\"}" "${DISCORD_WEBHOOK_URL}"
+          curl -s -X POST -H 'Content-Type: application/json' \
+            -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${{ secrets.DISCORD_WEBHOOK_URL }}"
