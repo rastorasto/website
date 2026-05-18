@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: `Terminal command: ${entry.command}\nSession: ${entry.sessionId}\nIP: ${entry.ip}\nPage: ${entry.url}\nTime: ${entry.timestamp}`,
+          content: `${entry.ip}@rasto.org:~$ ${entry.command}`,
         }),
       });
     } catch {
