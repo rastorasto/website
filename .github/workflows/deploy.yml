@@ -22,8 +22,13 @@ jobs:
       - name: Build and restart containers
         run: docker compose -f docker-compose.yml up -d --build --remove-orphans
 
-      - name: Notify Discord of deployment
-        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+      - name: Notify Discord of deployment (verbose)
         run: |
-          curl -s -X POST -H 'Content-Type: application/json' \
-            -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${DISCORD_WEBHOOK_URL}"
+          if [ -z "${DISCORD_WEBHOOK_URL:-}" ]; then
+            echo "DISCORD_WEBHOOK_URL is not set — skipping notification"
+            exit 0
+          fi
+          echo "Sending Discord notification..."
+          curl -vS --fail -X POST -H 'Content-Type: application/json' \
+            -d '{"content":"Deployed '${GITHUB_REPOSITORY}'@'${GITHUB_SHA}' by '${GITHUB_ACTOR}'"}' "${DISCORD_WEBHOOK_URL}" \
+            && echo "Discord notified successfully"
