@@ -13,3 +13,4 @@ services:
     environment:
       NODE_ENV: development
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+      TERMINAL_DISCORD_WEBHOOK_URL: ${TERMINAL_DISCORD_WEBHOOK_URL:-}

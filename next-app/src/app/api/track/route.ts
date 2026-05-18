@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const TERMINAL_DISCORD_WEBHOOK_URL = process.env.TERMINAL_DISCORD_WEBHOOK_URL;
 
 export async function POST(request: Request) {
-  let body: { event?: string; url?: string; timestamp?: string } = {};
+  let body: {
+    event?: string;
+    url?: string;
+    timestamp?: string;
+    command?: string;
+    sessionId?: string;
+  } = {};
 
   try {
     body = await request.json();
@@ -54,6 +61,8 @@ export async function POST(request: Request) {
     event: body.event ?? 'unknown',
     url: body.url ?? 'unknown',
     timestamp: body.timestamp ?? new Date().toISOString(),
+    command: body.command ?? 'unknown',
+    sessionId: body.sessionId ?? 'unknown',
     ip,
     country,
     city,
@@ -63,7 +72,21 @@ export async function POST(request: Request) {
 
   console.log('Tracked event:', entry);
 
-  if (DISCORD_WEBHOOK_URL) {
+  if (entry.event === 'terminal_command' && TERMINAL_DISCORD_WEBHOOK_URL) {
+    try {
+      await fetch(TERMINAL_DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `Terminal command: ${entry.command}\nSession: ${entry.sessionId}\nIP: ${entry.ip}\nPage: ${entry.url}\nTime: ${entry.timestamp}`,
+        }),
+      });
+    } catch {
+      console.error('Failed to send terminal Discord webhook notification');
+    }
+  } else if (DISCORD_WEBHOOK_URL) {
     try {
       await fetch(DISCORD_WEBHOOK_URL, {
         method: 'POST',

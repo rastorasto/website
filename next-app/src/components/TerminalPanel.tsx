@@ -5,7 +5,7 @@ import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 const PROMPT = 'cat@rasto.org:~$';
 
 const COMMANDS: Record<string, string[]> = {
-    help: ['Available commands:', 'help', 'about', 'clear', 'ls', 'pwd', 'whoami'],
+    help: ['Available commands:', 'help', 'about', 'clear', 'ls', 'pwd', 'whoami', 'take a guess :3'],
     about: ['meow terminal'],
     ls: ['meow', 'grrr', 'wuff.txt'],
     pwd: ['/home/cat'],
@@ -29,10 +29,36 @@ export default function TerminalPanel() {
   const [value, setValue] = useState('');
   const [lines, setLines] = useState<Line[]>([{ type: 'output', text: 'Type help for help.' }]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  const getSessionId = () => {
+    if (sessionIdRef.current) {
+      return sessionIdRef.current;
+    }
+
+    if (typeof window === 'undefined') {
+      return 'unknown';
+    }
+
+    const key = 'terminalSessionId';
+    let id = window.localStorage.getItem(key);
+
+    if (!id) {
+      if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+        id = crypto.randomUUID();
+      } else {
+        id = `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+      }
+      window.localStorage.setItem(key, id);
+    }
+
+    sessionIdRef.current = id;
+    return id;
+  };
 
   const runCommand = (command: string) => {
     const normalized = command.trim().toLowerCase();
@@ -84,6 +110,22 @@ export default function TerminalPanel() {
     event.preventDefault();
 
     const command = value;
+    const trimmed = command.trim();
+
+    if (trimmed && typeof navigator !== 'undefined') {
+      const payload = {
+        event: 'terminal_command',
+        command: trimmed,
+        sessionId: getSessionId(),
+        url: window.location.pathname,
+        timestamp: new Date().toISOString(),
+      };
+
+      navigator.sendBeacon(
+        '/api/track',
+        new Blob([JSON.stringify(payload)], { type: 'application/json' })
+      );
+    }
 
     setLines((current) => [...current, { type: 'prompt', text: command }]);
     setValue('');
