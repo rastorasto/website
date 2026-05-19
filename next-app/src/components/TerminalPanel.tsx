@@ -29,6 +29,7 @@ type Line = {
 export default function TerminalPanel() {
   const [value, setValue] = useState('');
   const [lines, setLines] = useState<Line[]>([{ type: 'output', text: 'Type help for help.' }]);
+  const [falling, setFalling] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionIdRef = useRef<string | null>(null);
 
@@ -69,15 +70,7 @@ export default function TerminalPanel() {
     }
 
     if (normalized === 'rm' || normalized.startsWith('rm ')) {
-      const payload = {
-        event: 'terminal_redirect',
-      };
-
-      navigator.sendBeacon(
-        '/api/track',
-        new Blob([JSON.stringify(payload)], { type: 'application/json' })
-      );
-      window.location.assign('https://example.com');
+      setFalling(true);
       return;
     }
 
@@ -146,12 +139,31 @@ export default function TerminalPanel() {
     runCommand(command);
   };
 
+  // When falling is triggered, add a global class to animate the whole site,
+  // then remove it after the animation finishes.
+  useEffect(() => {
+    if (!falling) return;
+
+    const cls = 'fall-down-site';
+    document.documentElement.classList.add(cls);
+
+    const duration = 1200; // ms, should match animation duration
+    const t = setTimeout(() => {
+      document.documentElement.classList.remove(cls);
+      setFalling(false);
+    }, duration + 50);
+
+    return () => {
+      clearTimeout(t);
+      document.documentElement.classList.remove(cls);
+    };
+  }, [falling]);
+
   return (
     <div
-      className="flex flex-col bg-black/90 p-4 font-mono min-h-[300px]"
+      className={`flex flex-col w-full h-full bg-black/90 font-mono transition-all duration-1000 outline-none min-h-[300px] ${falling ? 'fall-down' : ''}`}
       tabIndex={-1}
       onClick={() => inputRef.current?.focus()}
-      style={{ outline: 'none' }}
     >
       <div className="overflow-y-auto whitespace-pre-wrap text-pink-400">
         {lines.map((line, index) => (
