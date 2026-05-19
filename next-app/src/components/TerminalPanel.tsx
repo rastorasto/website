@@ -9,7 +9,7 @@ const COMMANDS: Record<string, string[]> = {
     about: ['meow terminal'],
     ls: ['meow', 'grrr', 'wuff.txt'],
     pwd: ['/home/cat'],
-    whoami: ['user'],
+    whoami: ['cat'],
     matrix: ['coming soon...'],
     cat: ['Usage: cat [file]'],
     neofetch: [
@@ -25,6 +25,7 @@ type Line = {
   text: string;
 };
 
+
 export default function TerminalPanel() {
   const [value, setValue] = useState('');
   const [lines, setLines] = useState<Line[]>([{ type: 'output', text: 'Type help for help.' }]);
@@ -33,7 +34,7 @@ export default function TerminalPanel() {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+  }, [lines]);
 
   const getSessionId = () => {
     if (sessionIdRef.current) {
@@ -146,13 +147,26 @@ export default function TerminalPanel() {
   };
 
   return (
-    <div className="flex flex-col bg-black/90 p-4 font-mono">
+    <div
+      className="flex flex-col bg-black/90 p-4 font-mono min-h-[300px]"
+      tabIndex={-1}
+      onClick={() => inputRef.current?.focus()}
+      style={{ outline: 'none' }}
+    >
       <div className="overflow-y-auto whitespace-pre-wrap text-pink-400">
         {lines.map((line, index) => (
           <div key={index}>
             {line.type === 'prompt' ? (
               <div className="flex items-center gap-2">
-                <span className="shrink-0 text-pink-300">{PROMPT}</span>
+                <span
+                  className="shrink-0 text-pink-300 cursor-text"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {PROMPT}
+                </span>
                 <span className="text-pink-400">{line.text}</span>
               </div>
             ) : (
@@ -162,7 +176,7 @@ export default function TerminalPanel() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
         <span
           className="cursor-text text-pink-300"
           onClick={() => inputRef.current?.focus()}
