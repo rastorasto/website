@@ -37,3 +37,38 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in;
 }
+
+@keyframes fallDownSite {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120vh) rotate(9deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fallDownPanel {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(90vh) rotate(-7deg) scale(0.98);
+    opacity: 0;
+  }
+}
+
+html.fall-down-site,
+html.fall-down-site body {
+  overflow: hidden;
+}
+
+html.fall-down-site body {
+  animation: fallDownSite 1.2s ease-in forwards;
+}
+
+.fall-down {
+  animation: fallDownPanel 1.2s ease-in forwards;
+}
