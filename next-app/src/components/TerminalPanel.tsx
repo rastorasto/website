@@ -128,7 +128,7 @@ export default function TerminalPanel() {
         timestamp: new Date().toISOString(),
       };
 
-      const apiBase = process.env.API_URL ?? '';
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
       const endpoint = apiBase ? `${apiBase.replace(/\/$/, '')}/track` : '/api/track';
 
       try {
