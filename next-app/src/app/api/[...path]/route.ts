@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.API_URL ?? 'http://api:4000';
 
-async function proxy(request: Request, params: { path?: string[] }) {
+async function proxy(request: NextRequest, params: { path: string[] }) {
   const base = API_URL.replace(/\/$/, '');
   const path = params.path?.join('/') ?? '';
   const url = new URL(request.url);
@@ -36,22 +36,27 @@ async function proxy(request: Request, params: { path?: string[] }) {
   });
 }
 
-export async function GET(request: Request, ctx: { params: { path?: string[] } }) {
-  return proxy(request, ctx.params);
+export async function GET(request: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+  const params = await ctx.params;
+  return proxy(request, params);
 }
 
-export async function POST(request: Request, ctx: { params: { path?: string[] } }) {
-  return proxy(request, ctx.params);
+export async function POST(request: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+  const params = await ctx.params;
+  return proxy(request, params);
 }
 
-export async function PUT(request: Request, ctx: { params: { path?: string[] } }) {
-  return proxy(request, ctx.params);
+export async function PUT(request: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+  const params = await ctx.params;
+  return proxy(request, params);
 }
 
-export async function PATCH(request: Request, ctx: { params: { path?: string[] } }) {
-  return proxy(request, ctx.params);
+export async function PATCH(request: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+  const params = await ctx.params;
+  return proxy(request, params);
 }
 
-export async function DELETE(request: Request, ctx: { params: { path?: string[] } }) {
-  return proxy(request, ctx.params);
+export async function DELETE(request: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+  const params = await ctx.params;
+  return proxy(request, params);
 }
