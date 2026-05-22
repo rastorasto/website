@@ -1,120 +1,33 @@
 import { NextResponse } from 'next/server';
 
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-const TERMINAL_DISCORD_WEBHOOK_URL = process.env.TERMINAL_DISCORD_WEBHOOK_URL;
+const API_URL = process.env.API_URL ?? 'http://api:4000';
 
 export async function POST(request: Request) {
-  let body: {
-    event?: string;
-    url?: string;
-    timestamp?: string;
-    command?: string;
-    sessionId?: string;
-  } = {};
+  const base = API_URL.replace(/\/$/, '');
+  const url = `${base}/track`;
 
-  try {
-    body = await request.json();
-  } catch {
-    body = {};
-  }
-
-  // Check for Cloudflare's real client IP first, then fall back to x-forwarded-for
-  const cfConnectingIp = request.headers.get('cf-connecting-ip');
+  const bodyText = await request.text();
+  const contentType = request.headers.get('content-type') ?? 'application/json';
   const forwardedFor = request.headers.get('x-forwarded-for');
-  const ip = cfConnectingIp?.trim() ?? forwardedFor?.split(',')[0]?.trim() ?? 'unknown';
+  const cfConnectingIp = request.headers.get('cf-connecting-ip');
 
-  let country = 'unknown';
+  const headers = new Headers({ 'content-type': contentType });
+  if (forwardedFor) headers.set('x-forwarded-for', forwardedFor);
+  if (cfConnectingIp) headers.set('cf-connecting-ip', cfConnectingIp);
 
-  let city = 'unknown';
-  let region = 'unknown';
-  let countryCode = 'unknown';
+  const apiResponse = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: bodyText,
+  });
 
-  if (ip !== 'unknown' && ip !== '127.0.0.1' && ip !== '::1') {
-    try {
-      const response = await fetch(`https://ipapi.co/${ip}/json/`, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+  const responseText = await apiResponse.text();
+  const responseContentType = apiResponse.headers.get('content-type') ?? 'application/json';
 
-      if (response.ok) {
-        const data = (await response.json()) as {
-          country_name?: string;
-          city?: string;
-          region?: string;
-          country_code?: string;
-        };
-        country = data.country_name ?? 'unknown';
-        city = data.city ?? 'unknown';
-        region = data.region ?? 'unknown';
-        countryCode = data.country_code ?? 'unknown';
-        console.log('Geolocation data:', data);
-      } else {
-        console.log('Geolocation API response not OK:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('Geolocation lookup error:', error);
-    }
-  }
-
-  const entry = {
-    event: body.event ?? 'unknown',
-    url: body.url ?? 'unknown',
-    timestamp: body.timestamp ?? new Date().toISOString(),
-    command: body.command ?? 'unknown',
-    sessionId: body.sessionId ?? 'unknown',
-    ip,
-    country,
-    city,
-    region,
-    countryCode,
-  };
-
-  console.log('Tracked event:', entry);
-
-  if (entry.event === 'terminal_command' && TERMINAL_DISCORD_WEBHOOK_URL) {
-    try {
-      await fetch(TERMINAL_DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: `${entry.ip}@rasto.org:~$ ${entry.command}`,
-        }),
-      });
-    } catch {
-      console.error('Failed to send terminal Discord webhook notification');
-    }
-  } else if (entry.event === 'terminal_redirect' && TERMINAL_DISCORD_WEBHOOK_URL) {
-    try {
-      await fetch(TERMINAL_DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: `redireting user ${entry.ip}`,
-        }),
-      });
-    } catch {
-      console.error('Failed to send terminal redirect Discord webhook notification');
-    }
-  } else if (DISCORD_WEBHOOK_URL) {
-    try {
-      await fetch(DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: `Website event: ${entry.event}\nIP: ${entry.ip}\nLocation: ${entry.city}, ${entry.region}, ${entry.countryCode}\nCountry: ${entry.country}\nTime: ${entry.timestamp}`,
-        }),
-      });
-    } catch {
-      console.error('Failed to send Discord webhook notification');
-    }
-  }
-
-  return NextResponse.json({ ok: true });
+  return new NextResponse(responseText, {
+    status: apiResponse.status,
+    headers: {
+      'Content-Type': responseContentType,
+    },
+  });
 }

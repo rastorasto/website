@@ -14,3 +14,23 @@ services:
       NODE_ENV: development
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
       TERMINAL_DISCORD_WEBHOOK_URL: ${TERMINAL_DISCORD_WEBHOOK_URL:-}
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+
+  api:
+    container_name: api
+    build: ./api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: development
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+      TERMINAL_DISCORD_WEBHOOK_URL: ${TERMINAL_DISCORD_WEBHOOK_URL:-}
+      SQLITE_PATH: /data/database.db
+    volumes:
+      - ./api:/app
+      - api-node-modules:/app/node_modules
+      - ./api/data:/data
+
+volumes:
+  api-node-modules:

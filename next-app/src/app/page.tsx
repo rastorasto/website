@@ -26,10 +26,22 @@ export default function Home() {
       timestamp: new Date().toISOString(),
     };
 
-    navigator.sendBeacon(
-      '/api/track',
-      new Blob([JSON.stringify(entry)], { type: 'application/json' })
-    );
+    const apiBase = process.env.API_URL ?? '';
+    const endpoint = apiBase ? `${apiBase.replace(/\/$/, '')}/track` : '/api/track';
+
+    try {
+      navigator.sendBeacon(
+        endpoint,
+        new Blob([JSON.stringify(entry)], { type: 'application/json' })
+      );
+    } catch (e) {
+      void fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry),
+        keepalive: true,
+      });
+    }
   };
 
   return (

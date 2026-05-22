@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "precommit:install": "pre-commit install",
-    "precommit:run": "pre-commit run --all-files",
-    "prepare": "pre-commit install"
+    "precommit:run": "pre-commit run --all-files"
   },
   "dependencies": {
     "next": "16.2.6",

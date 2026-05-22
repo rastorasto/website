@@ -9,5 +9,22 @@ services:
       - NODE_ENV=production
       - DISCORD_WEBHOOK_URL=<redacted>
       - TERMINAL_DISCORD_WEBHOOK_URL=<redacted>
+      - API_URL=http://api:4000
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
+
+  api:
+    container_name: api
+    build: ./api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - SQLITE_PATH=/data/database.db
+      - CORS_ORIGINS=https://rasto.org
+      - DISCORD_WEBHOOK_URL=<redacted>
+      - TERMINAL_DISCORD_WEBHOOK_URL=<redacted>
+    volumes:
+      - api-data:/data
+
+volumes:
+  api-data:
