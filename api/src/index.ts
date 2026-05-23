@@ -51,6 +51,7 @@ db.exec(`
 `);
 
 async function sendWebhook(url: string, content: string) {
+
     try {
         await fetch(url, {
             method: 'POST',
@@ -70,13 +71,32 @@ app.post('/track', async (req: Request, res: Response) => {
         req.ip ??
         'unknown';
 
-    let rawBody = req.body ?? {};
-    rawBody = JSON.stringify(rawBody);
-
+    const payload = req.body ?? {};
+    const rawBody = JSON.stringify(payload);
 
     console.log('Track hit:', { ip, body: rawBody });
+    console.log('Track payload:', payload);
 
-    await sendWebhook(DISCORD_WEBHOOK_URL!, `New track hit from IP: ${ip}\nBody: ${rawBody}`);
+    const payloadRecord =
+        payload && typeof payload === 'object'
+            ? (payload as Record<string, unknown>)
+            : undefined;
+    const event = payloadRecord?.event;
+    const command = payloadRecord?.command;
+
+    const isTerminalCommand = event === 'terminal_command' && typeof command === 'string';
+    const webhookUrl = isTerminalCommand
+        ? TERMINAL_DISCORD_WEBHOOK_URL ?? DISCORD_WEBHOOK_URL
+        : DISCORD_WEBHOOK_URL;
+    const webhookMessage = isTerminalCommand
+        ? `${ip}@rasto.org:~$ ${command}`
+        : `New track hit from IP: ${ip}\nBody: ${rawBody}`;
+
+    if (webhookUrl) {
+        await sendWebhook(webhookUrl, webhookMessage);
+    } else {
+        console.warn('No webhook URL configured for track events');
+    }
 
     try {
         const stmt = db.prepare('INSERT INTO tracks (ip, body) VALUES (?, ?)');
