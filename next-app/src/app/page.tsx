@@ -46,12 +46,8 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black px-4 py-6 text-white">
-      <div className="absolute inset-0 z-0">
-        <TerminalPanel />
-      </div>
-
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-10 lg:ml-auto lg:w-1/2 lg:items-center">
-        <div className="flex w-full flex-1 flex-col items-center gap-16">
+      <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 lg:ml-auto lg:min-h-screen lg:w-1/2 lg:items-center">
+        <div className="flex w-full flex-col items-center gap-16 lg:flex-1">
           <div className="text-4xl font-bold text-white">meow meow :3</div>
 
           <div className="relative flex flex-col items-center">
@@ -90,6 +86,10 @@ export default function Home() {
         </div>
           </div>
         </div>
+      </div>
+
+      <div className="relative z-0 mt-10 w-full lg:absolute lg:inset-0 lg:mt-0">
+        <TerminalPanel />
       </div>
     </div>
   );
