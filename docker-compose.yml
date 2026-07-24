@@ -20,7 +20,7 @@ services:
     environment:
       - NODE_ENV=production
       - SQLITE_PATH=/data/database.db
-      - CORS_ORIGINS=https://rasto.org
+      - CORS_ORIGINS=https://mnau.org
       - DISCORD_WEBHOOK_URL=<redacted>
       - TERMINAL_DISCORD_WEBHOOK_URL=<redacted>
     volumes:

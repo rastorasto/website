@@ -2,7 +2,7 @@
 
 import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 
-const PROMPT = 'cat@rasto.org:~$';
+const PROMPT = 'cat@mnau.org:~$';
 
 const COMMANDS: Record<string, string[]> = {
     help: ['Available commands:', 'help', 'about', 'clear', 'ls', 'pwd', 'whoami', 'take a guess :3'],

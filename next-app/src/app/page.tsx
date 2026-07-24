@@ -77,7 +77,7 @@ export default function Home() {
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <a
-            href="mailto:meow@rasto.org"
+            href="mailto:meow@mnau.org"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20 hover:scale-105"
           >
             <MailIcon />

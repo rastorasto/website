@@ -89,7 +89,7 @@ app.post('/track', async (req: Request, res: Response) => {
         ? TERMINAL_DISCORD_WEBHOOK_URL ?? DISCORD_WEBHOOK_URL
         : DISCORD_WEBHOOK_URL;
     const webhookMessage = isTerminalCommand
-        ? `${ip}@rasto.org:~$ ${command}`
+        ? `${ip}@mnau.org:~$ ${command}`
         : `New track hit from IP: ${ip}\nBody: ${rawBody}`;
 
     if (webhookUrl) {
