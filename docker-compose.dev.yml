@@ -5,8 +5,8 @@ services:
       context: ./next-app
       dockerfile: Dockerfile.dev
     restart: unless-stopped
-    ports:
-      - "8088:3000"
+    networks:
+      - proxy
     volumes:
       - ./next-app:/app
       - /app/node_modules
@@ -20,8 +20,8 @@ services:
     container_name: api
     build: ./api
     restart: unless-stopped
-    ports:
-      - "4000:4000"
+    networks:
+      - proxy
     environment:
       NODE_ENV: development
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
@@ -31,6 +31,10 @@ services:
       - ./api:/app
       - api-node-modules:/app/node_modules
       - ./api/data:/data
+
+networks:
+  proxy:
+    external: true
 
 volumes:
   api-node-modules:
